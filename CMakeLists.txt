@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.24)
+project(PitWall VERSION 0.2.0 LANGUAGES CXX)
+
+include(CTest)
+option(PITWALL_USE_GOOGLETEST "Run the contract suite through GoogleTest" OFF)
+
+add_library(pitwall_options INTERFACE)
+target_compile_features(pitwall_options INTERFACE cxx_std_20)
+set(CMAKE_CXX_EXTENSIONS OFF)
+if(MSVC)
+    target_compile_options(pitwall_options INTERFACE /W4 /permissive- /utf-8)
+else()
+    target_compile_options(pitwall_options INTERFACE -Wall -Wextra -Wpedantic)
+endif()
+
+add_subdirectory(libs/domain)
+add_subdirectory(libs/simulation)
+add_subdirectory(apps/simulator)
+add_subdirectory(apps/analyzer)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
