@@ -4,8 +4,9 @@
 
 PitWall is a telemetry analysis tool with its own small driving simulator. No racing
 game is required. Two processes are planned: Simulator and Analyzer. Replay is a
-mode of Analyzer. The current simulator implements headless vehicle physics and a
-scripted demo; Analyzer still implements its console entry point only.
+mode of Analyzer. The current simulator implements headless vehicle physics, closed
+track geometry and lap tracking with scripted demos. Analyzer still implements its
+console entry point only. An integration test connects actual vehicle states to lap timing.
 
 ```mermaid
 flowchart TD
@@ -20,13 +21,14 @@ This diagram describes the target, not the currently implemented data flow.
 
 ## Dependency boundaries
 
-`domain` and `simulation` are implemented reusable libraries. Introduce remaining
+`domain`, `simulation` and `track` are implemented reusable libraries. Introduce remaining
 targets only when needed; the table includes the intended future responsibilities:
 
 | Target | Responsibility | Dependencies |
 | --- | --- | --- |
 | domain | Units, telemetry values, session and lap types | Standard library |
-| simulation | Vehicle dynamics now; track geometry and lap tracking later | domain |
+| simulation | Vehicle dynamics and fixed-step scheduling | domain |
+| track | Closed centreline, road corridor, projection and lap tracking | domain |
 | telemetry | Codec, UDP receiver/sender, source state | domain, Boost.Asio, JSON |
 | analysis | Session processing and distance-aligned comparison | domain |
 | storage | SQLite schema, recording and loading | domain, SQLite |
@@ -59,6 +61,13 @@ See [vehicle physics](physics.md) for implemented equations and numerical polici
 Track progress is a projection onto the track centreline. It is distinct from
 distance travelled by the vehicle. Ordered checkpoints plus a directed finish-line
 crossing determine valid laps; leaving the track invalidates the current lap.
+
+The track library depends only on domain types, not physics. LapTracker owns an
+immutable Track by value and receives position/time samples. It measures the rear
+axle reference point; vehicle-body containment and track collisions are not modelled.
+It validates the entire line segment between samples against the union of road
+capsules, rejects discontinuities and interpolates crossing timestamps. Projection
+progress is wrapped, not a monotonic lap-distance accumulator. See [tracks](tracks.md).
 
 ## Planned Analyzer concurrency
 

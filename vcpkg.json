@@ -1,6 +1,6 @@
 {
   "name": "pitwall",
-  "version-semver": "0.2.0",
-  "description": "Racing simulator and telemetry analyzer: fixed-step vehicle physics",
+  "version-semver": "0.3.0",
+  "description": "Racing simulator and telemetry analyzer: track geometry and lap timing",
   "dependencies": ["gtest"]
 }

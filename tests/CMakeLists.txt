@@ -7,6 +7,9 @@ if(PITWALL_USE_GOOGLETEST)
     add_executable(pitwall_physics_tests physics_tests_gtest.cpp)
     target_link_libraries(pitwall_physics_tests PRIVATE pitwall::simulation GTest::gtest_main)
     gtest_discover_tests(pitwall_physics_tests)
+    add_executable(pitwall_track_tests track_tests_gtest.cpp)
+    target_link_libraries(pitwall_track_tests PRIVATE pitwall::track pitwall::simulation GTest::gtest_main)
+    gtest_discover_tests(pitwall_track_tests)
 else()
     add_executable(pitwall_domain_tests domain_tests_offline.cpp)
     target_link_libraries(pitwall_domain_tests PRIVATE pitwall::domain)
@@ -18,6 +21,15 @@ else()
             bad_config bad_state_and_duration fps_independence accumulator overload reset
             telemetry invalid_frame_is_atomic heading_wrap_and_long_run)
         add_test(NAME physics.${case} COMMAND pitwall_physics_tests ${case})
+    endforeach()
+    add_executable(pitwall_track_tests track_tests_offline.cpp)
+    target_link_libraries(pitwall_track_tests PRIVATE pitwall::track pitwall::simulation)
+    foreach(case IN ITEMS geometry projection wrapping boundaries swept_shortcut rounded_corner
+            bad_geometry bad_queries oval_roundtrip wait_for_start directed_start ordered_lap
+            best_lap off_track shortcut_lap teleport reverse_gate line_endpoints missing_checkpoints
+            recovery reset bad_time_atomic bad_rules interpolated_time multiple_gates high_timestamp
+            vehicle_integration)
+        add_test(NAME track.${case} COMMAND pitwall_track_tests ${case})
     endforeach()
 endif()
 
@@ -35,3 +47,6 @@ endforeach()
 set_tests_properties(simulator.startup PROPERTIES PASS_REGULAR_EXPRESSION "vehicle physics ready")
 add_test(NAME simulator.demo COMMAND pitwall_simulator --demo)
 set_tests_properties(simulator.demo PROPERTIES PASS_REGULAR_EXPRESSION "demo completed: steps=1200")
+add_test(NAME simulator.track_demo COMMAND pitwall_simulator --track-demo)
+set_tests_properties(simulator.track_demo PROPERTIES
+    PASS_REGULAR_EXPRESSION "track demo completed: laps=2, valid=2")

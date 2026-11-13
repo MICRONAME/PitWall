@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(PitWall VERSION 0.2.0 LANGUAGES CXX)
+project(PitWall VERSION 0.3.0 LANGUAGES CXX)
 
 include(CTest)
 option(PITWALL_USE_GOOGLETEST "Run the contract suite through GoogleTest" OFF)
@@ -15,6 +15,7 @@ endif()
 
 add_subdirectory(libs/domain)
 add_subdirectory(libs/simulation)
+add_subdirectory(libs/track)
 add_subdirectory(apps/simulator)
 add_subdirectory(apps/analyzer)
 if(BUILD_TESTING)

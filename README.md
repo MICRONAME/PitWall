@@ -2,10 +2,11 @@
 
 Racing Simulator & Telemetry Analyzer, written in C++20.
 
-**Status: Vehicle Physics (0.2.0).** The simulator now has a GUI-independent bicycle
-model, longitudinal forces, steering and speed limits, a 100 Hz fixed-step runner,
-and a scripted headless demo. It is not yet a playable game. Graphics, tracks,
-keyboard driving, UDP, SQLite, replay and lap analysis are planned, not implemented.
+**Status: Track Geometry & Lap Tracking (0.3.0).** The simulator has a GUI-independent
+vehicle model, a 100 Hz fixed-step runner, closed track geometry, centreline projection,
+ordered checkpoints and valid/invalid lap timing. Headless demos exercise physics and
+track logic. It is not yet a playable game. Graphics, keyboard driving, UDP, SQLite,
+replay and comparison of laps are planned, not implemented.
 
 ## Build on Windows: available MinGW toolchain
 
@@ -19,6 +20,7 @@ cmake --build --preset windows-mingw --parallel 2
 ctest --preset windows-mingw
 .\build\windows-mingw\apps\simulator\pitwall_simulator.exe
 .\build\windows-mingw\apps\simulator\pitwall_simulator.exe --demo
+.\build\windows-mingw\apps\simulator\pitwall_simulator.exe --track-demo
 .\build\windows-mingw\apps\analyzer\pitwall_analyzer.exe
 ```
 
@@ -27,6 +29,12 @@ code 2. Normal startup prints status and exits. Simulator `--demo` computes 12
 seconds of acceleration, left turning and braking, printing one row per simulated
 second. It runs without sleeping and opens no window. It is a scripted input sequence,
 not an autopilot. Analyzer is still the foundation entry point.
+
+Simulator `--track-demo` feeds scripted centreline positions to the lap tracker and
+prints two valid laps on the default 400.274 m oval (approximately 20.014 s per lap
+at 20 m/s). This checks geometry/timing, not autonomous driving. An integration test
+separately drives the actual vehicle model with constant controls around a circular
+test track and verifies two timed laps. Neither demo opens a graphical window.
 
 ## Visual Studio 2022
 
@@ -76,6 +84,7 @@ Linux and GoogleTest configurations have not been locally verified yet.
 
 See [architecture](docs/architecture.md), [telemetry contract](docs/telemetry.md),
 [roadmap](docs/roadmap.md) and [verification](docs/verification.md).
+See [track rules](docs/tracks.md) for the geometry and timing contracts.
 
 Current source layout:
 
@@ -83,7 +92,8 @@ Current source layout:
 - `apps/analyzer`: analyzer entry point.
 - `libs/domain`: shared telemetry types and stateless field validation.
 - `libs/simulation`: vehicle parameters, physics and a bounded fixed-step accumulator.
-- `tests`: domain, physics, frame scheduling and application checks.
+- `libs/track`: closed road geometry, projection, swept motion checks and lap tracking.
+- `tests`: domain, physics, frame scheduling, track/lap and application checks.
 - `docs`: design decisions, planned milestones and verification evidence.
 
 No empty module libraries or placeholder interfaces are created for future features.
@@ -95,6 +105,6 @@ Use `.clang-format` for source formatting. Avoid serializing C++ object memory;
 the future wire codec must define an independent format. Keep UI and third-party
 dependencies out of the domain library. Build and test after each small milestone.
 
-Suggested milestone commit: `feat: add fixed-step vehicle physics and headless demo`.
+Suggested milestone commit: `feat: add track geometry and validated lap timing`.
 
 License: MIT; see [LICENSE](LICENSE).

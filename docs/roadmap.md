@@ -7,7 +7,7 @@ Implement one small, buildable slice at a time.
 | Foundation | Two executables, domain library, CMake presets, offline CTest | Implemented |
 | Dependency setup | Verify vcpkg/GoogleTest and commit registry baseline | Pending network access |
 | Vehicle model | Fixed-step acceleration, braking, turning; independent tests | Implemented |
-| Track and laps | One circuit; ordered checkpoints; directed finish crossing | Planned |
+| Track and laps | One circuit; ordered checkpoints; directed finish crossing | Implemented |
 | Interactive simulator | Drive a valid lap using WASD; pause and reset | Planned |
 | UDP | Codec validation and loopback integration tests | Planned |
 | Dashboard | Live values, speed/pedals charts, source diagnostics | Planned |
@@ -19,10 +19,12 @@ simulator adapters. No opponent AI, track editor or detailed drivetrain before M
 
 ## Next implementation slice
 
-Add one closed track with centreline geometry, road width and ordered checkpoints.
-Implement directed finish crossing and valid/invalid lap tracking independently of
-graphics. Then add a window, draw the track/car and connect keyboard controls to
-the existing fixed-step runner. Physics must stay usable without a window.
+Add a GLFW/OpenGL window, draw the existing road/car and connect WASD to the existing
+fixed-step runner. Spawn at Track::pose_at(0) using the track tangent for heading.
+Pass every physics tick to LapTracker, not just the final position of a rendered frame.
+Add pause/reset and lap status HUD. A paused frame must not produce a duplicate-time
+lap sample. Keep domain, simulation and track usable without a window. External
+graphics packages will require a working download path or a populated package cache.
 
 ## Risks
 
